@@ -19,7 +19,10 @@
         </resources>
     ```
 6. 解决启动日志乱码问题，在 org.apache.tomcat.util.res.StringManager 第 135 行增加如下代码。原因是：在java中, 读取文件的默认格式是iso8859-1, 而我们中文存储的时候一般是UTF-8
-    > 参考文章：https://blog.csdn.net/zhoutaoping1992/article/details/104751705/、https://www.jianshu.com/p/24483c3fc58c
-    ```
-       str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); 
+    > 参考文章：
+    > - https://blog.csdn.net/zhoutaoping1992/article/details/104751705/
+    > - https://www.jianshu.com/p/24483c3fc58c
+    
+   ```
+   str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); 
    ```
