@@ -1194,6 +1194,10 @@ public abstract class AbstractEndpoint<S> {
         startInternal();
     }
 
+    /**
+     * 读取了 server.xml 中配置的 acceptorThreadCount 参数，并创建对应数量的 acceptor线程。<br>
+     *     acceptor线程 是用来等待请求的
+     */
     protected final void startAcceptorThreads() {
         int count = getAcceptorThreadCount();
         acceptors = new Acceptor[count];
