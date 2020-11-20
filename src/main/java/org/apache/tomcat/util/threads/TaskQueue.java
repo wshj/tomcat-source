@@ -78,6 +78,7 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
         //we have idle threads, just add it to the queue
         if (parent.getSubmittedCount()<=(parent.getPoolSize())) return super.offer(o);
         //if we have less threads than maximum force creation of a new thread
+        // 当新任务到来时，如果当前线程小于最大下次，则直接将任务交给新的线程执行
         if (parent.getPoolSize()<parent.getMaximumPoolSize()) return false;
         //if we reached here, we need to add it to the queue
         return super.offer(o);
