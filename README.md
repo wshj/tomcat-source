@@ -27,7 +27,6 @@
    str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); 
    ```
 
-# NIO
 ## 启动流程
 详见：/doc/architecture/startup.html 或者 官方文档：https://tomcat.apache.org/tomcat-8.5-doc/architecture/startup.html。下面的内容是从文档中翻译，并加了一下我的理解。
 
@@ -54,6 +53,7 @@
         2. 调用 org.apache.tomcat.util.net.AbstractEndpoint.startAcceptorThreads 开启 server.xml 中配置的 acceptorThreadCount 数量的 Acceptor 线程，用来监听 TCP 连接【无限循环】
         3. Tomcat receives a request on an HTTP port。最终在 Acceptor 中阻塞到代码 `socket = serverSock.accept();` 部分。Acceptor 根据 server.xml 配置决定，默认是 NioEndpoint 类中的 Acceptor 的对象。 
 
+# NIO
 ## 接收请求的流程
 1. 进入 Accept 的 run 方法
     1. 从 `SynchronizedStack<NioChannel> nioChannels;` （栈大小：128）获取缓存的 NioChannel，没有就创建一个。
@@ -61,6 +61,17 @@
     1. 创建 NioSocketWrapper 对象，并绑定到 NioChannel 中
     1. 从 `SynchronizedStack<PollerEvent> eventCache` （栈大小：128）获取缓存的 PollerEvent，没有就创建一个。
     1. 将 PollerEvent 对象放到队列中，等待 Poller 依次取出调用。
+1. 通过方法 countUpOrAwaitConnection 判断是否达到最大链接（server.xml 中配置的 maxConnections），如果到了就等待。
+
+1. Poller 从 `SynchronizedQueue<PollerEvent> events` 中取出每一个任务，调用 `org.apache.tomcat.util.net.AbstractEndpoint.processSocket` 放入到 tomcat 自定义的 ThreadPoolExecutor线程池中等待执行。
+
+# NIO2
+## 接收请求的流程
+1. 进入 Accept 的 run 方法
+    1. 从 `SynchronizedStack<Nio2Channel> nioChannels;` （栈大小：128）获取缓存的 Nio2Channel，没有就创建一个。
+    1. 创建 Nio2SocketWrapper 对象，并绑定到 Nio2Channel 中
+    1. 从 `SynchronizedStack<SocketProcessorBase<S>> processorCache` （栈大小：128）获取缓存的 SocketProcessorBase（实际是 Nio2Endpoint.SocketProcessor），没有就创建一个。
+    1. 将 SocketProcessorBase 对象交给 tomcat 自定义的 ThreadPoolExecutor。
 1. 通过方法 countUpOrAwaitConnection 判断是否达到最大链接（server.xml 中配置的 maxConnections），如果到了就等待。
 
 1. Poller 从 `SynchronizedQueue<PollerEvent> events` 中取出每一个任务，调用 `org.apache.tomcat.util.net.AbstractEndpoint.processSocket` 放入到 tomcat 自定义的 ThreadPoolExecutor线程池中等待执行。

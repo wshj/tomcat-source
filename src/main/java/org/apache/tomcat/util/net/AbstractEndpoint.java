@@ -1071,13 +1071,17 @@ public abstract class AbstractEndpoint<S> {
             }
             SocketProcessorBase<S> sc = processorCache.pop();
             if (sc == null) {
+                long start = System.nanoTime();
                 sc = createSocketProcessor(socketWrapper, event);
+                getLog().info(String.format("创建 org.apache.tomcat.util.net.SocketProcessorBase 耗时：%s 纳秒", System.nanoTime() - start));
             } else {
                 sc.reset(socketWrapper, event);
             }
             Executor executor = getExecutor();
             if (dispatch && executor != null) {
+                long start = System.nanoTime();
                 executor.execute(sc);
+                getLog().info(String.format("创建 NIO2 提交任务 耗时：%s 纳秒", System.nanoTime() - start));
             } else {
                 sc.run();
             }

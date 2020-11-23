@@ -306,6 +306,7 @@ public class Nio2Endpoint extends AbstractJsseEndpoint<Nio2Channel> {
             socketProperties.setProperties(socket);
             Nio2Channel channel = nioChannels.pop();
             if (channel == null) {
+                long start = System.nanoTime();
                 SocketBufferHandler bufhandler = new SocketBufferHandler(
                         socketProperties.getAppReadBufSize(),
                         socketProperties.getAppWriteBufSize(),
@@ -315,7 +316,9 @@ public class Nio2Endpoint extends AbstractJsseEndpoint<Nio2Channel> {
                 } else {
                     channel = new Nio2Channel(bufhandler);
                 }
+                getLog().info(String.format("创建 Nio2Channel 耗时：%s 纳秒", System.nanoTime() - start));
             }
+            long start = System.nanoTime();
             Nio2SocketWrapper socketWrapper = new Nio2SocketWrapper(channel, this);
             channel.reset(socket, socketWrapper);
             socketWrapper.setReadTimeout(getSocketProperties().getSoTimeout());
@@ -323,6 +326,7 @@ public class Nio2Endpoint extends AbstractJsseEndpoint<Nio2Channel> {
             socketWrapper.setKeepAliveLeft(Nio2Endpoint.this.getMaxKeepAliveRequests());
             socketWrapper.setReadTimeout(getConnectionTimeout());
             socketWrapper.setWriteTimeout(getConnectionTimeout());
+            getLog().info(String.format("创建 Nio2SocketWrapper 耗时：%s 纳秒", System.nanoTime() - start));
             // Continue processing on another thread
             return processSocket(socketWrapper, SocketEvent.OPEN_READ, true);
         } catch (Throwable t) {
