@@ -39,6 +39,12 @@
        errMsg = new String(errMsg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
    }
    ```
+7. 解决无法解析jsp页面问题
+   ```
+   org.apache.catalina.startup.ContextConfig.configureStart 方法中，找到 webConfig(); 在此下加入下方代码：
+   
+   context.addServletContainerInitializer(new JasperInitializer(), null);
+   ```
 
 ## 启动流程
 详见：/doc/architecture/startup.html 或者 官方文档：https://tomcat.apache.org/tomcat-8.5-doc/architecture/startup.html。下面的内容是从文档中翻译，并加了一下我的理解。
