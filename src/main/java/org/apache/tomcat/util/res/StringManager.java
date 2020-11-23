@@ -132,6 +132,7 @@ public class StringManager {
             // Avoid NPE if bundle is null and treat it like an MRE
             if (bundle != null) {
                 str = bundle.getString(key);
+                // 增加此段，解决启动时，控制台乱码问题
                 str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             }
         } catch (MissingResourceException mre) {

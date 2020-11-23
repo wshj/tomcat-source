@@ -24,7 +24,20 @@
     > - https://www.jianshu.com/p/24483c3fc58c
     
    ```
-   str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); 
+   org.apache.tomcat.util.res.StringManager.getString(java.lang.String) 方法
+   if (bundle != null) {
+       str = bundle.getString(key);
+       // 增加此段，解决启动时，控制台乱码问题
+       str = new String(str.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+   }
+   
+   
+   org.apache.jasper.compiler.Localizer.getMessage(java.lang.String) 方法
+   if (bundle != null) {
+       errMsg = bundle.getString(errCode);
+       // 增加此段，解决 50x 错误页面乱码问题
+       errMsg = new String(errMsg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+   }
    ```
 
 ## 启动流程

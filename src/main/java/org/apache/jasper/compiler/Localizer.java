@@ -16,11 +16,12 @@
  */
 package org.apache.jasper.compiler;
 
+import org.apache.jasper.runtime.ExceptionUtils;
+
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import org.apache.jasper.runtime.ExceptionUtils;
 
 /**
  * Class responsible for converting error codes to corresponding localized
@@ -56,6 +57,8 @@ public class Localizer {
         try {
             if (bundle != null) {
                 errMsg = bundle.getString(errCode);
+                // 增加此段，解决 50x 错误页面乱码问题
+                errMsg = new String(errMsg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             }
         } catch (MissingResourceException e) {
         }
