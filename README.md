@@ -68,11 +68,14 @@
         1. 加载 server.xml
    2. daemon.start(); -> （反射）调用 Catalina.start();
         1. 处理默认的web.xml（conf/web.xml），然后处理应用程序web.xml（WEB-INF/web.xml）
-        2. 开启最多 2 个轮训线程，详见：org.apache.tomcat.util.net.NioEndpoint.startInternal 中的代码 `pollers = new Poller[getPollerThreadCount()];` 【无限循环】
-        2. 调用 org.apache.tomcat.util.net.AbstractEndpoint.startAcceptorThreads 开启 server.xml 中配置的 acceptorThreadCount 数量的 Acceptor 线程，用来监听 TCP 连接【无限循环】
-        3. Tomcat receives a request on an HTTP port。最终在 Acceptor 中阻塞到代码 `socket = serverSock.accept();` 部分。Acceptor 根据 server.xml 配置决定，默认是 NioEndpoint 类中的 Acceptor 的对象。 
+        2. Tomcat receives a request on an HTTP port。最终在 Acceptor 中阻塞到代码 `socket = serverSock.accept();` 部分。Acceptor 根据 server.xml 配置决定，默认是 NioEndpoint 类中的 Acceptor 的对象。
+        3. 其他详见下发的"特定启动流程" 
 
 # NIO
+## 特定启动流程
+1. 开启最多 2 个轮训线程，详见：org.apache.tomcat.util.net.NioEndpoint.startInternal 中的代码 `pollers = new Poller[getPollerThreadCount()];` 【无限循环】
+2. 调用 org.apache.tomcat.util.net.AbstractEndpoint.startAcceptorThreads 开启 server.xml 中配置的 acceptorThreadCount 数量的 Acceptor 线程，用来监听 TCP 连接【无限循环】
+
 ## 接收请求的流程
 1. 进入 Accept 的 run 方法
     1. 从 `SynchronizedStack<NioChannel> nioChannels;` （栈大小：128）获取缓存的 NioChannel，没有就创建一个。
